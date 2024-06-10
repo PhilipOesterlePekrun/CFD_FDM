@@ -1,0 +1,8 @@
+The idea will be to create a .txt file for the data, like the array data and such, and then write at each loop when you have the new data, write it into it, probably just with less sig figs or as a float rather than double as it is calculated (to save space).
+
+There will be a user parameter to set the maximum file size, in MB or GB, so that i don't accidentally make such a super big txt file. Efficiently, this would be calculated beforehand using the number of grid points and time steps, and the program would not run and give an error.
+
+The animation can be done wherever, whether it is unity or maybe a separate project, which uses some graphics library, in the same solution. It does not need all of the txt file, and it does not need to store all of the portion of the txt file that it does need, all at once. It can firstly match to the desired fps the time step points that are actually animated. For the second point, it can predict how long it will take to read part of the txt file, then add a safety factor to that, and only store that span of data ahead at the points where it reads. This is also true with writing. Perhaps writing the new values every time is not the most efficient either, but also store a range at a time so that it does not need to store all the data for all time points at the same time.
+
+
+Computation speed is one thing. Storing the data is another thing. Practically, you will have to only write a reduced set of data. You can also write the reduced set to an array, for memory, but also maybe try to figure out how to do it for disk. Parallelization comes to mind here, though it is limited. But in the end, you have to store only a smaller number of grid points and a smaller number of time steps.
