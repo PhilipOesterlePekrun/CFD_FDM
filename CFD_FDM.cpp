@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <string>
 
 #include <chrono>
 
@@ -11,39 +12,58 @@
 #include <numbers>
 using namespace std;
 #include "Utilities.h"
+#include "Simulation_FDM_ChorinsProj_Viscous_Unsteady.h";
+//#include "ISimulation.h"
 
-// data file parameters
-string outputDirectory = "Outputs\\"; // relative
-string dataTxtFile = "Simulation1.txt";
-string metaTxtFile = deleteInterval(dataTxtFile, dataTxtFile.length() - 4, dataTxtFile.length()) + "META.txt";
-int memorySpanN = 5; // see samsung notes; minimum value = 2
+
+// data and file parameters
+//const string outputDirectory = "Outputs\\"; // relative
+//const string dataTxtFile = "Simulation1.txt";
+//const string metaTxtFile = deleteInterval(dataTxtFile, dataTxtFile.length() - 4, dataTxtFile.length()) + "META.txt";
+//const int memorySpanN = 5; // see samsung notes; minimum value = 2
+const size_t UVP_maxRAM = 8*(unsigned long long)(1024 * 1024 * 1024); // maximum total size of U_reduced+V_reduced+P_reduced in Bytes
+// simple reduced control:
+enum dxdydt
+{
+    edx,
+    edy,
+    edt,
+    edxANDdy
+};
+const dxdydt reducedControlPriority =edt; // decide between which is prioritized to be minimized
+const double maxReduced_dt = 0.0005; // max value of dt; if reducedControl==edt, then it will be minimized even lower until it is = dt, then the others will be minimized; *GUARANTEES* AT LEAST THIS RESOLUTION
+const double maxReduced_dx = 0.1; //
+const double maxReduced_dy = 0.1; //
 
 // physical parameters
-double bodyForce[2] ={ 0, -9.81 };
+const double bodyForce[2] ={ 0, -9.81 };
 const double density = 998.23;
-double viscosity_mu = 1.002 * pow(10, -3);
-double viscosity_nu;
+const double viscosity_mu = 1.002 * pow(10, -3);
+const double viscosity_nu=density* viscosity_mu;
 
 // numerical parameters
-const int xCount = 30;
+const int xCount = 80;
 const double dx = 0.05;
 double* xBounds; // rectangle; implicitly given
 
-const int yCount = 30;
+const int yCount = 80;
 const double dy = 0.05;
 double* yBounds; //
 
-const int nCount = 500000; // num of time steps
+const int nCount = 50000; // num of time steps
 const double dt = 0.00005;
 double t_f;
 
 // iteration parameters
-int iterMax = 100; // max iter steps
+const int iterMax = 100; // max iter steps
 
-// global variables
-double** U; // U in i, j
-double** V; //
-double** P; //
+// mutable arrays and variables
+double U_local[xCount][yCount][2]; // contains U at all nodes at time n and n-1 within loop n
+double V_local[xCount][yCount][2]; //
+double P_local[xCount][yCount][2]; //
+float*** U_reduced; // contains rounded (for now just to float, but further rounding is planned) U at a portion of the nodes at a portion of the time (e.g. i=0, 4, 8, ...; j=0, 4, 8, ...; n=0, 20, 40, ...); this is automatically calculated so the combined size is < UVP_maxRAM
+float*** V_reduced; //
+float*** P_reduced; //
 fieldExtrema pE;
 
 double divAtAPoint[nCount];
@@ -63,67 +83,31 @@ double U_onLeftBoundary(double y, double t)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
-    auto start = chrono::high_resolution_clock::now();
-
-    ofstream oF;
+    /*ofstream oF;
     oF.open(outputDirectory+dataTxtFile);
     if (!oF.is_open()) {
-        std::cerr << "Failed to open file "<< outputDirectory + dataTxtFile;
+        std::cerr << "CERR: Failed to open file "<< outputDirectory + dataTxtFile;
         return 1;
     }
     oF << "-------------- CFD_FDM data file --------------\n\n";
     cout << "Created File " << dataTxtFile << "\n";
+    oF.close();*/
 
-    // grid
-    xBounds = new double[] { 0, (xCount - 1)* dx };
-    yBounds = new double[] { 0, (yCount - 1)* dy };
-    t_f = (nCount - 1) * dt;
-    cout << "x length,y length, t_f: "<<(xBounds[1] - xBounds[0])<<"m , "<<(yBounds[1] - yBounds[0])<<"m , "<<t_f<<"s";
-
-    // material properties and constants
-    viscosity_nu = density * viscosity_mu;
-
-    // vectors and visuals
-    //U = new double[xCount, yCount, nCount]; // x-component of velocity
-    //V = new double[xCount, yCount, nCount]; // y-component of velocity
-    //P = new double[xCount, yCount, nCount]; // pressure
+    Simulation_FDM_ChorinsProj_Viscous_Unsteady sim1=Simulation_FDM_ChorinsProj_Viscous_Unsteady(0001);
+    sim1.printInformation();
+    sim1.xCount*=5;
+    sim1.yCount*=5;
+    sim1.nCount*=2;
+    sim1.printInformation();
+    sim1.maxReducedFactor_x=10;
+    sim1.maxReducedFactor_y=10;
+    sim1.maxReducedFactor_t=10;
+    std::cout<<sim1.run()<<"\n";
+    //std::cout<<simulationMethodName;
+    
     //auto startOfWrite = chrono::high_resolution_clock::now();
-    int ints[5000];
-    for (int i = 1; i < 5000-1; i++) {
-        ints[i] = i;
-        oF << i << "\n";
-    }
-    oF << 5000;
-    oF.close();
-    //auto startOfWrite = chrono::high_resolution_clock::now();
-    ifstream iF(outputDirectory + dataTxtFile);
-    if (!iF.is_open()) {
-        return 1;
-    }
-    string l;
-    getline(iF, l);
-    getline(iF, l);
-    auto startOfWrite = chrono::high_resolution_clock::now();
-    while (getline(iF, l)) {
-        int j = stoi(l);
-    }
-    //for (int i = 1; i < 5000; i++) {
-        //int j =;
-    //}
-    auto end = chrono::high_resolution_clock::now();
-    std::cout << "Time taken: " << end-startOfWrite<<"\n";
+    //auto end = chrono::high_resolution_clock::now();
+    //std::cout << "Time taken: " << end-startOfWrite<<"\n";
 
     return 0;
 }
-
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Openw > Project and select the .sln file

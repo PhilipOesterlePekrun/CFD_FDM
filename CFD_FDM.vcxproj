@@ -129,9 +129,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CFD_FDM.cpp" />
+    <ClCompile Include="ISimulation.cpp" />
+    <ClCompile Include="Simulation_FDM_ChorinsProj_Viscous_Unsteady.cpp" />
     <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ISimulation.h" />
+    <ClInclude Include="Simulation_FDM_ChorinsProj_Viscous_Unsteady.h" />
     <ClInclude Include="Utilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -6,3 +6,20 @@ The animation can be done wherever, whether it is unity or maybe a separate proj
 
 
 Computation speed is one thing. Storing the data is another thing. Practically, you will have to only write a reduced set of data. You can also write the reduced set to an array, for memory, but also maybe try to figure out how to do it for disk. Parallelization comes to mind here, though it is limited. But in the end, you have to store only a smaller number of grid points and a smaller number of time steps.
+
+
+Organization of the project:
+Simulation abstract/base class: base class for all simulation types
+Simulation_FDM class: has all of the parameters and stuff basically to run the simulation, with global variables in unity being members of that class
+Visualization/Playing Simulation class: can play the visual simulation based on any sort of U V P, and containers the user replay parameters; uses some graphics library
+Main file: has int main(), where the intersection lies and you can simulate one or multiple simulations, save these as files, simulate then play, or load files and play
+
+all classes/files except for main() will have header files too, so that you don't have to recompile, but just run, if nothing has changed. This should greatly streamline it and increase speed
+
+
+For time stepping, use Runge-Kutta Methods instead of forward Euler. Important is teil7 slide 36; shows that for s=3 and above, pure oscillations can be reprresented (imaginary axis partly in stable regime)
+
+Also reread teil8, slides 6-8
+
+
+Parallelization: I plan to parallelize firstly just running multiple simulations, e.g. if you run 8 seperate, different simulations, and you have 8 processors/core, then you can run them all at once. Of course, with my current storage method, RAM is a limitation, as it is shared.

@@ -4,7 +4,7 @@
 #include <limits>
 #include <cmath>
 #include <numbers>
-using namespace std;
+#include <string>
 
 struct fieldExtrema
 {
@@ -42,10 +42,28 @@ struct fieldExtrema
 };
 
 // // misc utilities
+/* I DIDNT USE THESE FUNCTIONS BECAUSE I THOUGHT THEY DIDNT WORK; MAYBE THEY DO, CAN TRY USING THEM AGAIN
+template<typename T>
+size_t getSizeOfArrEle(T* arr) {
+    using ElementType = typename std::remove_pointer<T>::type;
+    return sizeof(ElementType);
+}
+template<typename T>
+size_t getSizeOfArrEle(T** arr) {
+    using ElementType = typename std::remove_pointer<typename std::remove_pointer<T>::type>::type;
+    return sizeof(ElementType);
+}
+template<typename T>
+size_t getSizeOfArrEle(T*** arr) {
+    using ElementType = typename std::remove_pointer<typename std::remove_pointer<typename std::remove_pointer<T>::type>::type>::type;
+    return sizeof(ElementType);
+}*/
+
+// // math utilities
 double function_sigmoid(double x);
 double function_step(double x);
 double xYToAngle(double x, double y);
 
 // // string utilities
-int* checkForIn(string checkFor, string checkIn);
-string deleteInterval(string text, int from, int to);
+int* checkForIn(std::string checkFor, std::string checkIn);
+std::string deleteInterval(std::string text, int from, int to);

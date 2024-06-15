@@ -1,13 +1,14 @@
-#pragma once
-
 #include <iostream>
 #include <limits>
 #include <cmath>
 #include <numbers>
+#include <string>
+
 using namespace std;
 
-
 // // misc utilities
+
+// // math utilities
 static double function_sigmoid(double x)
 {
     return 1 / (1 + exp(-x));
