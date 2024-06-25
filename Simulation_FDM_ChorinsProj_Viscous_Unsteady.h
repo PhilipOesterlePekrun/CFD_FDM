@@ -39,7 +39,7 @@ private:
 
 // numerical parameters
 public:
-    int localTimeScope=4; // depends on the time discretization method; might make it a selection of the method rather than the time in future
+    short localTimeScope=4; // depends on the time discretization method; might make it a selection of the method rather than the time in future
 
 public:
     int xCount = 80;
@@ -63,7 +63,7 @@ private:
 public:
     int iterMax = 50; // max iter steps
 
-// mutable arrays and variables
+// mutable arrays and related variables
 private:
     size_t standardTypeSizeEleU=8; // in Bytes
     double*** U_local;//[xCount] [yCount] [2]; // contains U at all nodes at time n and n-1 within loop n
@@ -83,41 +83,12 @@ public:
     //!
 
 private:
-    long long int reducedLength(int reducedFactor, int originalLength);
-
-    template <typename T>
-    void allocate3DArray(T ****arr, int xCount, int yCount, int zCount) {
-        *arr = (T***) malloc(xCount * sizeof(T**));
-        if (*arr == NULL) {
-            perror("Failed to allocate memory for arr");
-            exit(EXIT_FAILURE);
-        }
-
-        for (int i = 0; i < xCount; i++) {
-            (*arr)[i] = (T**) malloc(yCount * sizeof(T*));
-            if ((*arr)[i] == NULL) {
-                perror("Failed to allocate memory for arr[i]");
-                exit(EXIT_FAILURE);
-            }
-
-            for (int j = 0; j < yCount; j++) {
-                (*arr)[i][j] = (T*) malloc(zCount * sizeof(T));
-                if ((*arr)[i][j] == NULL) {
-                    perror("Failed to allocate memory for arr[i][j]");
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
-    }
-    template <typename T>
-    void free3DArray(T ***arr, int xCount, int yCount) {
-        for (int i = 0; i < xCount; i++) {
-            for (int j = 0; j < yCount; j++) {
-                free(arr[i][j]); // Free each array of elements
-            }
-            free(arr[i]); // Free each array of pointers
-        }
-        free(arr); // Free the array of pointers to pointers
+    inline long long int reducedLength(int originalLength, int reducedFactor){
+        return std::ceil((originalLength-1)/reducedFactor)+1;
     }
 
+    // utilities specifically for this type of simulation
+    inline int localArrayPosAtN(int n){ // most efficient way I could think of: circular replacement of oldest with newest
+        return n%localTimeScope;
+    }
 };

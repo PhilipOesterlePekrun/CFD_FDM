@@ -10,7 +10,10 @@
 #include <limits>
 #include <cmath>
 #include <numbers>
-using namespace std;
+
+#include<glad/glad.h>
+#include<GLFW/glfw3.h>
+
 #include "Utilities.h"
 #include "Simulation_FDM_ChorinsProj_Viscous_Unsteady.h";
 //#include "ISimulation.h"
@@ -83,7 +86,7 @@ double U_onLeftBoundary(double y, double t)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main()
 {
-    /*ofstream oF;
+	/*ofstream oF;
     oF.open(outputDirectory+dataTxtFile);
     if (!oF.is_open()) {
         std::cerr << "CERR: Failed to open file "<< outputDirectory + dataTxtFile;
@@ -102,7 +105,7 @@ int main()
     sim1.maxReducedFactor_x=10;
     sim1.maxReducedFactor_y=10;
     sim1.maxReducedFactor_t=10;
-    std::cout<<sim1.run()<<"\n";
+    //std::cout<<sim1.run()<<"\n";
     //std::cout<<simulationMethodName;
     
     //auto startOfWrite = chrono::high_resolution_clock::now();

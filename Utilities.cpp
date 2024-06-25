@@ -8,23 +8,8 @@ using namespace std;
 
 // // misc utilities
 
-// // math utilities
-static double function_sigmoid(double x)
-{
-    return 1 / (1 + exp(-x));
-}
-double function_step(double x)
-{
-    if (x < 0)
-    {
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-}
 
+// // math utilities
 double xYToAngle(double x, double y) // returns angle in degrees, >= 0 and < 360
 {
     if (x == 0)
